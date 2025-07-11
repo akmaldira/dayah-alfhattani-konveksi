@@ -3,20 +3,27 @@ import { PrismaClient } from "@/lib/prisma/generated";
 const prisma = new PrismaClient();
 
 async function main() {
-  const cash = await prisma.cashBalance.findUnique({ where: { id: 1 } });
-
-  if (!cash) {
-    await prisma.cashBalance.create({
-      data: {
-        id: 1,
-        balance: 0,
+  await prisma.$transaction([
+    // Remove this in production
+    prisma.user.upsert({
+      where: { email: "akmaldiraa@gmail.com" },
+      update: {},
+      create: {
+        name: "Akmal Dira",
+        email: "akmaldiraa@gmail.com",
+        password:
+          "$2a$10$91R1JsuwXpw5LMP8XXUoJO59EpLyU75mkBRGgZTzol84LEMny2R.K",
+        role: "ROOT",
       },
-    });
+    }),
+    prisma.cashBalance.upsert({
+      where: { id: 1 },
+      update: {},
+      create: {},
+    }),
+  ]);
 
-    console.log("✅ CashBalance initialized.");
-  } else {
-    console.log("✅ CashBalance already exists.");
-  }
+  console.log("✅ CashBalance initialized.");
 }
 
 main()
