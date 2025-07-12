@@ -66,7 +66,7 @@ export function DataTable<TData, TValue>({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 flex-col-reverse md:flex-row justify-between">
-        <div className="flex items-center flex-col lg:flex-row gap-2">
+        <div className="flex items-center flex-col gap-2">
           <div className="flex items-center gap-2">
             <Input
               placeholder="Cari"
@@ -152,7 +152,7 @@ export function DataTable<TData, TValue>({
           </div>
         </div>
         {/* <UpsertStockMutationDialog /> */}
-        <div className="flex items-center flex-col lg:flex-row gap-2">
+        <div className="flex items-center flex-col gap-2">
           <Button variant="destructive" disabled>
             <MinusIcon className="w-4 h-4" />
             Barang Keluar

@@ -22,3 +22,35 @@ export type StockMutationWithRelations = Prisma.StockMutationGetPayload<{
     };
   };
 }>;
+
+export type TransactionItemWithRelations = Prisma.TransactionItemGetPayload<{
+  include: {
+    mutation: {
+      include: {
+        variant: {
+          include: {
+            item: true;
+          };
+        };
+      };
+    };
+  };
+}>;
+
+export type TransactionWithRelations = Prisma.TransactionGetPayload<{
+  include: {
+    items: {
+      include: {
+        mutation: {
+          include: {
+            variant: {
+              include: {
+                item: true;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+}>;

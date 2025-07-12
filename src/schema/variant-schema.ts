@@ -57,7 +57,7 @@ export const addStockWithoutOrderSchema = z.object({
   action: z.literal("add"),
   _id: z.string().min(1, "ID varian harus diisi"),
   itemId: z.string().min(1, "ID barang harus diisi"),
-  unitId: z.string().min(1, "ID satuan harus diisi"),
+  unitId: z.string().min(1, "Satuan harus diisi"),
   quantity: z.coerce.number().min(1, "Jumlah harus diisi"),
   note: z.string().optional(),
 });
@@ -67,8 +67,8 @@ export type AddStockWithoutOrderSchema = z.infer<
 
 export const addStockWithOrderSchema = addStockWithoutOrderSchema.extend({
   action: z.literal("addWithOrder"),
-  source: z.string().optional(),
-  totalPrice: z.coerce.number().min(1, "Harga total harus diisi"),
+  supplier: z.string().optional(),
+  totalAmount: z.coerce.number().min(1, "Harga total harus diisi"),
 });
 export type AddStockWithOrderSchema = z.infer<typeof addStockWithOrderSchema>;
 

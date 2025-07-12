@@ -1,3 +1,4 @@
+import { CASH_BALANCE_ID } from "@/lib/const";
 import { PrismaClient } from "@/lib/prisma/generated";
 
 const prisma = new PrismaClient();
@@ -17,7 +18,7 @@ async function main() {
       },
     }),
     prisma.cashBalance.upsert({
-      where: { id: 1 },
+      where: { id: CASH_BALANCE_ID },
       update: {},
       create: {},
     }),

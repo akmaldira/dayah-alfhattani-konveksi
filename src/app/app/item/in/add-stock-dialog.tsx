@@ -1,5 +1,6 @@
 "use client";
 
+import { addStockAction } from "@/action/variant-action";
 import { Combobox } from "@/components/combobox";
 import { MoneyInputForm } from "@/components/money-input-form";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { cn, handleActionResponse } from "@/lib/utils";
 import { addStockSchema, AddStockSchema } from "@/schema/variant-schema";
 import { ItemWithRelations } from "@/types/prisma";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -67,7 +68,11 @@ export function AddStockDialog({
 
   function onSubmit(values: AddStockSchema) {
     startTransition(async () => {
-      console.log(values);
+      const response = await addStockAction(values);
+      const data = handleActionResponse(response);
+      if (data) {
+        setDialogOpen(false);
+      }
     });
   }
 
@@ -236,7 +241,7 @@ export function AddStockDialog({
               <>
                 <FormField
                   control={form.control}
-                  name="source"
+                  name="supplier"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Supplier (Opsional)</FormLabel>
@@ -255,7 +260,7 @@ export function AddStockDialog({
                   form={form}
                   label="Harga Total"
                   required
-                  name="totalPrice"
+                  name="totalAmount"
                   placeholder="Harga Total"
                   disabled={!watch.itemId}
                 />

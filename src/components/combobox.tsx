@@ -25,12 +25,14 @@ export function Combobox({
   placeholder,
   options,
   disabled,
+  className,
 }: {
   value?: string;
   onValueChange: (value?: string) => void;
   placeholder: string;
   options: { id: string; label: string }[];
   disabled?: boolean;
+  className?: string;
 }) {
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
@@ -41,7 +43,7 @@ export function Combobox({
           variant="outline"
           role="combobox"
           aria-expanded={dialogOpen}
-          className="w-full justify-between"
+          className={cn("w-full justify-between", className)}
           disabled={disabled}
         >
           {value
@@ -52,9 +54,9 @@ export function Combobox({
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." />
+          <CommandInput placeholder="Cari data..." />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>Tidak ada data.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => (
                 <CommandItem

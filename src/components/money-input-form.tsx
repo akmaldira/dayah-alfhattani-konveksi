@@ -13,10 +13,11 @@ import { UseFormReturn } from "react-hook-form";
 type TextInputProps = {
   form: UseFormReturn<any>;
   name: string;
-  label: string;
+  label?: string;
   placeholder: string;
   disabled?: boolean;
   required?: boolean;
+  className?: string;
 };
 
 const moneyFormatter = Intl.NumberFormat("id-ID", {
@@ -56,8 +57,10 @@ export function MoneyInputForm(props: TextInputProps) {
         const _change = field.onChange;
 
         return (
-          <FormItem>
-            <FormLabel required={props.required}>{props.label}</FormLabel>
+          <FormItem className={props.className}>
+            {props.label && (
+              <FormLabel required={props.required}>{props.label}</FormLabel>
+            )}
             <FormControl>
               <Input
                 placeholder={props.placeholder}

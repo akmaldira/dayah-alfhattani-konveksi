@@ -112,7 +112,11 @@ function SidebarGroupItem({
   return items.map((sidebar) => (
     <SidebarMenuItem key={sidebar.title}>
       {sidebar.type == "single" ? (
-        <SidebarMenuButton asChild isActive={pathname === sidebar.href}>
+        <SidebarMenuButton
+          asChild
+          isActive={pathname === sidebar.href}
+          tooltip={sidebar.title}
+        >
           <Link href={sidebar.href}>
             {sidebar.icon}
             <span>{sidebar.title}</span>
@@ -122,6 +126,7 @@ function SidebarGroupItem({
         <>
           <SidebarMenuButton
             isActive={sidebar.items.some((item) => item.href === pathname)}
+            tooltip={sidebar.title}
           >
             {sidebar.icon}
             <span>{sidebar.title}</span>
@@ -146,7 +151,7 @@ function SidebarGroupItem({
 export function AppSidebar({ user }: { user: User }) {
   const pathname = usePathname();
   return (
-    <Sidebar>
+    <Sidebar variant="floating" collapsible="icon">
       <SidebarHeader>
         <SidebarLogo />
       </SidebarHeader>

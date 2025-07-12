@@ -1,7 +1,11 @@
 import { AppBreadcrumb } from "@/components/app-breadcrumb";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
@@ -19,7 +23,7 @@ export default async function AppLayout({
   return (
     <SidebarProvider>
       <AppSidebar user={session.user} />
-      <main className="container pt-6">
+      <SidebarInset className="container pt-6 overflow-hidden">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <SidebarTrigger />
@@ -30,7 +34,7 @@ export default async function AppLayout({
           </div>
         </div>
         {children}
-      </main>
+      </SidebarInset>
     </SidebarProvider>
   );
 }
