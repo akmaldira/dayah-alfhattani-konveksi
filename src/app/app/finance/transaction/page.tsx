@@ -18,7 +18,7 @@ export default async function TransactionPage() {
   });
 
   return (
-    <div>
+    <div className="pb-20">
       <PageLabel label="Transaksi" />
       <DataTable columns={columns} data={expenses} />
     </div>

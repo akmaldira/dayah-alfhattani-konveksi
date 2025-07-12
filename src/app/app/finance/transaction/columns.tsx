@@ -19,10 +19,22 @@ import { ItemDetailDialog } from "../item-detail-dialog";
 export const columns: ColumnDef<TransactionWithRelations>[] = [
   {
     id: "id",
-    accessorKey: "id",
-    header: "ID Transaksi",
+    header: "Item",
+    cell: ({ row }) => {
+      return (
+        <div className="max-w-96">
+          <p className="line-clamp-1 text-ellipsis">
+            {row.original.items.map((item) => item.name).join(", ")}
+          </p>
+        </div>
+      );
+    },
     filterFn: (row, _id, filterValue) => {
-      const itemString = [...row.original.items.map((item) => item.name)]
+      const itemString = [
+        row.original.source,
+        row.original.note,
+        ...row.original.items.map((item) => item.name),
+      ]
         .filter(Boolean)
         .join(" ");
 
@@ -91,6 +103,10 @@ export const columns: ColumnDef<TransactionWithRelations>[] = [
     header: "Tanggal",
     cell: ({ row }) => {
       return <div>{formatDate(row.original.createdAt)}</div>;
+    },
+    filterFn: (row, _id, filterValue) => {
+      const date = new Date(filterValue as string);
+      return row.original.createdAt.toDateString() === date.toDateString();
     },
   },
 ];

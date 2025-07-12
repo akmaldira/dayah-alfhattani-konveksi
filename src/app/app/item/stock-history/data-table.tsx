@@ -146,6 +146,8 @@ export function DataTable<TData, TValue>({
                   table
                     .getColumn("createdAt")
                     ?.setFilterValue(date.toISOString());
+                } else {
+                  table.getColumn("createdAt")?.setFilterValue(undefined);
                 }
               }}
             />

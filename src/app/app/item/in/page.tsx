@@ -13,7 +13,7 @@ export default async function ItemInPage() {
     },
   });
   return (
-    <div>
+    <div className="pb-20">
       <PageLabel label="Barang Masuk" />
       <ItemInClient items={items} />
     </div>

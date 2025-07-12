@@ -12,6 +12,189 @@ import {
 } from "@/components/ui/chart";
 import { formatCurrency } from "@/lib/utils";
 
+const _dummyData = [
+  {
+    date: new Date("2025-06-12"),
+    with_stock: 120000,
+    without_stock: 30000,
+    total: 150000,
+  },
+  {
+    date: new Date("2025-06-13"),
+    with_stock: 90000,
+    without_stock: 15000,
+    total: 105000,
+  },
+  {
+    date: new Date("2025-06-14"),
+    with_stock: 110000,
+    without_stock: 20000,
+    total: 130000,
+  },
+  {
+    date: new Date("2025-06-15"),
+    with_stock: 130000,
+    without_stock: 50000,
+    total: 180000,
+  },
+  {
+    date: new Date("2025-06-16"),
+    with_stock: 140000,
+    without_stock: 35000,
+    total: 175000,
+  },
+  {
+    date: new Date("2025-06-17"),
+    with_stock: 60000,
+    without_stock: 20000,
+    total: 80000,
+  },
+  {
+    date: new Date("2025-06-18"),
+    with_stock: 95000,
+    without_stock: 40000,
+    total: 135000,
+  },
+  {
+    date: new Date("2025-06-19"),
+    with_stock: 105000,
+    without_stock: 30000,
+    total: 135000,
+  },
+  {
+    date: new Date("2025-06-20"),
+    with_stock: 125000,
+    without_stock: 25000,
+    total: 150000,
+  },
+  {
+    date: new Date("2025-06-21"),
+    with_stock: 115000,
+    without_stock: 45000,
+    total: 160000,
+  },
+  {
+    date: new Date("2025-06-22"),
+    with_stock: 100000,
+    without_stock: 50000,
+    total: 150000,
+  },
+  {
+    date: new Date("2025-06-23"),
+    with_stock: 70000,
+    without_stock: 20000,
+    total: 90000,
+  },
+  {
+    date: new Date("2025-06-24"),
+    with_stock: 90000,
+    without_stock: 30000,
+    total: 120000,
+  },
+  {
+    date: new Date("2025-06-25"),
+    with_stock: 80000,
+    without_stock: 40000,
+    total: 120000,
+  },
+  {
+    date: new Date("2025-06-26"),
+    with_stock: 95000,
+    without_stock: 15000,
+    total: 110000,
+  },
+  {
+    date: new Date("2025-06-27"),
+    with_stock: 85000,
+    without_stock: 25000,
+    total: 110000,
+  },
+  {
+    date: new Date("2025-06-28"),
+    with_stock: 130000,
+    without_stock: 20000,
+    total: 150000,
+  },
+  {
+    date: new Date("2025-06-29"),
+    with_stock: 120000,
+    without_stock: 10000,
+    total: 130000,
+  },
+  {
+    date: new Date("2025-06-30"),
+    with_stock: 110000,
+    without_stock: 30000,
+    total: 140000,
+  },
+  {
+    date: new Date("2025-07-01"),
+    with_stock: 100000,
+    without_stock: 25000,
+    total: 125000,
+  },
+  {
+    date: new Date("2025-07-02"),
+    with_stock: 90000,
+    without_stock: 20000,
+    total: 110000,
+  },
+  {
+    date: new Date("2025-07-03"),
+    with_stock: 95000,
+    without_stock: 50000,
+    total: 145000,
+  },
+  {
+    date: new Date("2025-07-04"),
+    with_stock: 105000,
+    without_stock: 40000,
+    total: 145000,
+  },
+  {
+    date: new Date("2025-07-05"),
+    with_stock: 85000,
+    without_stock: 30000,
+    total: 115000,
+  },
+  {
+    date: new Date("2025-07-06"),
+    with_stock: 115000,
+    without_stock: 35000,
+    total: 150000,
+  },
+  {
+    date: new Date("2025-07-07"),
+    with_stock: 120000,
+    without_stock: 30000,
+    total: 150000,
+  },
+  {
+    date: new Date("2025-07-08"),
+    with_stock: 95000,
+    without_stock: 25000,
+    total: 120000,
+  },
+  {
+    date: new Date("2025-07-09"),
+    with_stock: 80000,
+    without_stock: 40000,
+    total: 120000,
+  },
+  {
+    date: new Date("2025-07-10"),
+    with_stock: 130000,
+    without_stock: 20000,
+    total: 150000,
+  },
+  {
+    date: new Date("2025-07-11"),
+    with_stock: 140000,
+    without_stock: 30000,
+    total: 170000,
+  },
+];
+
 const chartConfig = {
   total: {
     label: "Total",
@@ -27,194 +210,11 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const dummyData = [
-  {
-    day: "2025-06-12T00:00:00.000Z",
-    with_stock: 120000,
-    without_stock: 30000,
-    total: 150000,
-  },
-  {
-    day: "2025-06-13T00:00:00.000Z",
-    with_stock: 90000,
-    without_stock: 15000,
-    total: 105000,
-  },
-  {
-    day: "2025-06-14T00:00:00.000Z",
-    with_stock: 110000,
-    without_stock: 20000,
-    total: 130000,
-  },
-  {
-    day: "2025-06-15T00:00:00.000Z",
-    with_stock: 130000,
-    without_stock: 50000,
-    total: 180000,
-  },
-  {
-    day: "2025-06-16T00:00:00.000Z",
-    with_stock: 140000,
-    without_stock: 35000,
-    total: 175000,
-  },
-  {
-    day: "2025-06-17T00:00:00.000Z",
-    with_stock: 60000,
-    without_stock: 20000,
-    total: 80000,
-  },
-  {
-    day: "2025-06-18T00:00:00.000Z",
-    with_stock: 95000,
-    without_stock: 40000,
-    total: 135000,
-  },
-  {
-    day: "2025-06-19T00:00:00.000Z",
-    with_stock: 105000,
-    without_stock: 30000,
-    total: 135000,
-  },
-  {
-    day: "2025-06-20T00:00:00.000Z",
-    with_stock: 125000,
-    without_stock: 25000,
-    total: 150000,
-  },
-  {
-    day: "2025-06-21T00:00:00.000Z",
-    with_stock: 115000,
-    without_stock: 45000,
-    total: 160000,
-  },
-  {
-    day: "2025-06-22T00:00:00.000Z",
-    with_stock: 100000,
-    without_stock: 50000,
-    total: 150000,
-  },
-  {
-    day: "2025-06-23T00:00:00.000Z",
-    with_stock: 70000,
-    without_stock: 20000,
-    total: 90000,
-  },
-  {
-    day: "2025-06-24T00:00:00.000Z",
-    with_stock: 90000,
-    without_stock: 30000,
-    total: 120000,
-  },
-  {
-    day: "2025-06-25T00:00:00.000Z",
-    with_stock: 80000,
-    without_stock: 40000,
-    total: 120000,
-  },
-  {
-    day: "2025-06-26T00:00:00.000Z",
-    with_stock: 95000,
-    without_stock: 15000,
-    total: 110000,
-  },
-  {
-    day: "2025-06-27T00:00:00.000Z",
-    with_stock: 85000,
-    without_stock: 25000,
-    total: 110000,
-  },
-  {
-    day: "2025-06-28T00:00:00.000Z",
-    with_stock: 130000,
-    without_stock: 20000,
-    total: 150000,
-  },
-  {
-    day: "2025-06-29T00:00:00.000Z",
-    with_stock: 120000,
-    without_stock: 10000,
-    total: 130000,
-  },
-  {
-    day: "2025-06-30T00:00:00.000Z",
-    with_stock: 110000,
-    without_stock: 30000,
-    total: 140000,
-  },
-  {
-    day: "2025-07-01T00:00:00.000Z",
-    with_stock: 100000,
-    without_stock: 25000,
-    total: 125000,
-  },
-  {
-    day: "2025-07-02T00:00:00.000Z",
-    with_stock: 90000,
-    without_stock: 20000,
-    total: 110000,
-  },
-  {
-    day: "2025-07-03T00:00:00.000Z",
-    with_stock: 95000,
-    without_stock: 50000,
-    total: 145000,
-  },
-  {
-    day: "2025-07-04T00:00:00.000Z",
-    with_stock: 105000,
-    without_stock: 40000,
-    total: 145000,
-  },
-  {
-    day: "2025-07-05T00:00:00.000Z",
-    with_stock: 85000,
-    without_stock: 30000,
-    total: 115000,
-  },
-  {
-    day: "2025-07-06T00:00:00.000Z",
-    with_stock: 115000,
-    without_stock: 35000,
-    total: 150000,
-  },
-  {
-    day: "2025-07-07T00:00:00.000Z",
-    with_stock: 120000,
-    without_stock: 30000,
-    total: 150000,
-  },
-  {
-    day: "2025-07-08T00:00:00.000Z",
-    with_stock: 95000,
-    without_stock: 25000,
-    total: 120000,
-  },
-  {
-    day: "2025-07-09T00:00:00.000Z",
-    with_stock: 80000,
-    without_stock: 40000,
-    total: 120000,
-  },
-  {
-    day: "2025-07-10T00:00:00.000Z",
-    with_stock: 130000,
-    without_stock: 20000,
-    total: 150000,
-  },
-  {
-    day: "2025-07-11T00:00:00.000Z",
-    with_stock: 140000,
-    without_stock: 30000,
-    total: 170000,
-  },
-];
-
 export function DailyExpenseChart({
   chartData,
 }: {
   chartData: {
-    day: string;
+    date: Date;
     with_stock: number;
     without_stock: number;
     total: number;
@@ -223,9 +223,14 @@ export function DailyExpenseChart({
   return (
     <ChartContainer
       config={chartConfig}
-      className="aspect-auto h-[250px] w-full"
+      className="aspect-auto h-[300px] mt-[50px] w-full"
     >
-      <AreaChart data={dummyData}>
+      <AreaChart
+        data={chartData.map((item) => ({
+          ...item,
+          date: item.date.toISOString().split("T")[0],
+        }))}
+      >
         <defs>
           <linearGradient id="fillWithStock" x1="0" y1="0" x2="0" y2="1">
             <stop
@@ -266,7 +271,7 @@ export function DailyExpenseChart({
         </defs>
         <CartesianGrid vertical={false} />
         <XAxis
-          dataKey="day"
+          dataKey="date"
           tickLine={false}
           axisLine={false}
           tickMargin={8}

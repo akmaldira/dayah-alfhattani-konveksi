@@ -54,3 +54,13 @@ export type TransactionWithRelations = Prisma.TransactionGetPayload<{
     };
   };
 }>;
+
+export type CashAuditLogWithRelations = Prisma.CashAuditLogGetPayload<{
+  include: {
+    transaction: {
+      include: {
+        items: true;
+      };
+    };
+  };
+}>;

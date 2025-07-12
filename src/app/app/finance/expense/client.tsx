@@ -48,7 +48,7 @@ export function ExpenseClient({
     total: number;
   };
   trendDaily: {
-    day: string;
+    date: Date;
     with_stock: number;
     without_stock: number;
     total: number;
@@ -219,7 +219,9 @@ export function ExpenseClient({
       <div className="grid auto-rows-min gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Pengeluaran Bulanan</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Pengeluaran Bulanan
+            </CardTitle>
             <CardDescription></CardDescription>
           </CardHeader>
           <CardContent>
@@ -228,7 +230,9 @@ export function ExpenseClient({
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Pengeluaran Terbaru</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Pengeluaran Terbaru
+            </CardTitle>
             <CardDescription></CardDescription>
           </CardHeader>
           <CardContent>

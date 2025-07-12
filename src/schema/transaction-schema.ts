@@ -53,3 +53,23 @@ export const upsertTransactionSchema = z.discriminatedUnion("action", [
   updateTransactionSchema,
 ]);
 export type UpsertTransactionSchema = z.infer<typeof upsertTransactionSchema>;
+
+export const increaseCashSchema = z.object({
+  action: z.literal("increase"),
+  amount: z.coerce.number().min(1, "Jumlah saldo harus diisi"),
+  note: z.string().optional(),
+});
+export type IncreaseCashSchema = z.infer<typeof increaseCashSchema>;
+
+export const decreaseCashSchema = z.object({
+  action: z.literal("decrease"),
+  amount: z.coerce.number().min(1, "Jumlah saldo harus diisi"),
+  note: z.string().optional(),
+});
+export type DecreaseCashSchema = z.infer<typeof decreaseCashSchema>;
+
+export const upsertCashSchema = z.discriminatedUnion("action", [
+  increaseCashSchema,
+  decreaseCashSchema,
+]);
+export type UpsertCashSchema = z.infer<typeof upsertCashSchema>;

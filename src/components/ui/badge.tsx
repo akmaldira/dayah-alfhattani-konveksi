@@ -18,10 +18,10 @@ const badgeVariants = cva(
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         green:
-          "border-transparent bg-green-500 text-green-50 hover:bg-green-600 dark:bg-green-600 dark:text-green-100 dark:hover:bg-green-700",
-        blue: "border-transparent bg-blue-500 text-blue-50 hover:bg-blue-600 dark:bg-blue-600 dark:text-blue-100 dark:hover:bg-blue-700",
+          "border-transparent bg-green-600 text-green-50 hover:bg-green-700 dark:bg-green-500 dark:text-green-100 dark:hover:bg-green-600",
+        blue: "border-transparent bg-blue-600 text-blue-50 hover:bg-blue-700 dark:bg-blue-500 dark:text-blue-100 dark:hover:bg-blue-600",
         yellow:
-          "border-transparent bg-yellow-400 text-yellow-900 hover:bg-yellow-500 dark:bg-yellow-500 dark:text-yellow-950 dark:hover:bg-yellow-600",
+          "border-transparent bg-yellow-500 text-yellow-900 hover:bg-yellow-400 dark:bg-yellow-500 dark:text-yellow-950 dark:hover:bg-yellow-400",
         orange:
           "border-transparent bg-orange-500 text-white hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700",
         purple:

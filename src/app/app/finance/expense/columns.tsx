@@ -18,7 +18,11 @@ export const columns: ColumnDef<TransactionWithRelations>[] = [
     header: "ID Transaksi",
     cell: ({ row }) => row.original.id.slice(0, 3) + "...",
     filterFn: (row, _id, filterValue) => {
-      const itemString = [...row.original.items.map((item) => item.name)]
+      const itemString = [
+        row.original.source,
+        row.original.note,
+        ...row.original.items.map((item) => item.name),
+      ]
         .filter(Boolean)
         .join(" ");
 

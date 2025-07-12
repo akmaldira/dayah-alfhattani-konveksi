@@ -21,7 +21,7 @@ export default async function ItemByUniqueNamePage({
   });
 
   return (
-    <div>
+    <div className="pb-20">
       <ItemByUniqueNameClient item={item ?? undefined} />
     </div>
   );

@@ -2,7 +2,7 @@ import { prisma } from ".";
 import { TransactionType } from "./generated";
 
 type DailyTrend = {
-  day: string;
+  date: Date;
   with_stock: number;
   without_stock: number;
   total: number;
@@ -112,7 +112,7 @@ export async function getTransactionSummary(initialType: TransactionType) {
   // 3. Trend harian bulan ini
   const dailyTrendCurrentMonth = await prisma.$queryRawUnsafe<DailyTrend[]>(`
     SELECT
-      DATE(t.created_at) AS day,
+      DATE(t.created_at) AS date,
       SUM(ti.total_price) FILTER (
         WHERE ti.mutation_id IS NOT NULL
       ) AS with_stock,
@@ -185,7 +185,12 @@ export async function getTransactionSummary(initialType: TransactionType) {
       lastMonth: Number(mutationSummary.last_month_without_stock ?? 0),
       total: Number(mutationSummary.total_without_stock ?? 0),
     },
-    trendDaily: dailyTrendCurrentMonth,
+    trendDaily: dailyTrendCurrentMonth.map((item) => ({
+      date: new Date(item.date),
+      with_stock: Number(item.with_stock ?? 0),
+      without_stock: Number(item.without_stock ?? 0),
+      total: Number(item.total ?? 0),
+    })),
     topTransactions,
     topSources,
     averageExpense: Number(average.average ?? 0),

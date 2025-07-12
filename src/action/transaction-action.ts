@@ -4,11 +4,14 @@ import { auth } from "@/lib/auth";
 import { CASH_BALANCE_ID } from "@/lib/const";
 import { prisma } from "@/lib/prisma";
 import {
+  CashAuditLog,
   StockMutation,
   Transaction,
   TransactionItem,
 } from "@/lib/prisma/generated";
 import {
+  upsertCashSchema,
+  UpsertCashSchema,
   upsertTransactionSchema,
   UpsertTransactionSchema,
 } from "@/schema/transaction-schema";
@@ -36,6 +39,7 @@ export async function createExpenseAction(
     if (!user) {
       return {
         status: "error",
+        redirect: "/signin",
         error: {
           code: "UNAUTHORIZED",
           message: "Anda harus login untuk melakukan tindakan ini",
@@ -187,6 +191,87 @@ export async function createExpenseAction(
     };
   } catch (error: any) {
     console.error(`[createExpenseAction] ${error.message}`);
+    return {
+      status: "error",
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: error.message,
+      },
+    };
+  }
+}
+
+export async function upsertCashAction(
+  values: UpsertCashSchema
+): Promise<ActionResponse<CashAuditLog>> {
+  try {
+    const { data, error } = upsertCashSchema.safeParse(values);
+
+    if (error) {
+      return {
+        status: "error",
+        error: {
+          code: "VALIDATION_ERROR",
+          message: error.message,
+        },
+      };
+    }
+
+    const session = await auth();
+    const user = session?.user;
+    if (!user) {
+      return {
+        status: "error",
+        redirect: "/signin",
+        error: {
+          code: "UNAUTHORIZED",
+          message: "Anda harus login untuk melakukan tindakan ini",
+        },
+      };
+    }
+
+    const cashAuditLog = await prisma.$transaction(async (tx) => {
+      const cashBalance = await tx.cashBalance.upsert({
+        where: { id: CASH_BALANCE_ID },
+        update: {},
+        create: {},
+      });
+
+      const nextBalance =
+        data.action === "increase"
+          ? cashBalance.balance + data.amount
+          : cashBalance.balance - data.amount;
+
+      const initialCashAuditLog = await tx.cashAuditLog.create({
+        data: {
+          type: "ADJUSTMENT",
+          amount: data.amount,
+          previousBalance: cashBalance.balance,
+          nextBalance,
+          createdById: user.id,
+          note: data.note,
+        },
+      });
+
+      await tx.cashBalance.update({
+        where: { id: cashBalance.id },
+        data: {
+          balance: nextBalance,
+        },
+      });
+
+      return initialCashAuditLog;
+    });
+
+    revalidatePath("/app/finance");
+    return {
+      status: "success",
+      data: cashAuditLog,
+      message: "Perubahan saldo berhasil dibuat",
+      redirect: "/app/finance",
+    };
+  } catch (error: any) {
+    console.error(`[upsertCashAction] ${error.message}`);
     return {
       status: "error",
       error: {

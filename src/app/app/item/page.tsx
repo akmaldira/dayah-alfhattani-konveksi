@@ -23,7 +23,7 @@ export default async function ItemPage() {
   });
 
   return (
-    <div>
+    <div className="pb-20">
       <PageLabel label="Barang & Varian" />
       <DataTable columns={columns} data={items} />
     </div>

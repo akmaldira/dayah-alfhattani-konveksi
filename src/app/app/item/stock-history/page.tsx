@@ -34,7 +34,7 @@ export default async function StockMutationPage() {
   });
 
   return (
-    <div>
+    <div className="pb-20">
       <PageLabel label="Riwayat Perubahan Stock" />
       <DataTable
         columns={columns}

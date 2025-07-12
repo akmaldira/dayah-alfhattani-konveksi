@@ -10,8 +10,16 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
+import { DateTimePicker } from "@/components/date-time-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -20,6 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import Link from "next/link";
 import React from "react";
 
 interface DataTableProps<TData, TValue> {
@@ -49,15 +58,92 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 justify-between">
-        <Input
-          placeholder="Cari transaksi"
-          className="max-w-xs"
-          value={(table.getColumn("id")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("id")?.setFilterValue(event.target.value)
-          }
-        />
+      <div className="flex items-center gap-2 flex-col-reverse md:flex-row justify-between">
+        <div className="flex items-center flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Cari transaksi"
+              className="w-[300px]"
+              value={(table.getColumn("id")?.getFilterValue() as string) ?? ""}
+              onChange={(event) =>
+                table.getColumn("id")?.setFilterValue(event.target.value)
+              }
+            />
+            {/* <Select
+              onValueChange={(value) => {
+                if (value === "ALL") {
+                  table.getColumn("type")?.setFilterValue(undefined);
+                } else {
+                  table.getColumn("type")?.setFilterValue(value);
+                }
+              }}
+              defaultValue={
+                (table.getColumn("type")?.getFilterValue() as string) ?? ""
+              }
+            >
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Tipe Transaksi" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">Semua</SelectItem>
+                <SelectItem value="INCOME">Pemasukan</SelectItem>
+                <SelectItem value="EXPENSE">Pengeluaran</SelectItem>
+                <SelectItem value="ADJUSTMENT">Perubahan</SelectItem>
+              </SelectContent>
+            </Select> */}
+          </div>
+          <div className="flex items-center gap-2">
+            <Select
+              onValueChange={(value) => {
+                if (value === "ALL") {
+                  table.getColumn("type")?.setFilterValue(undefined);
+                } else {
+                  table.getColumn("type")?.setFilterValue(value);
+                }
+              }}
+              defaultValue={
+                (table.getColumn("type")?.getFilterValue() as string) ?? ""
+              }
+            >
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Tipe Transaksi" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">Semua</SelectItem>
+                <SelectItem value="INCOME">Pemasukan</SelectItem>
+                <SelectItem value="EXPENSE">Pengeluaran</SelectItem>
+                <SelectItem value="ADJUSTMENT">Perubahan</SelectItem>
+              </SelectContent>
+            </Select>
+            <DateTimePicker
+              className="w-[150px]"
+              value={
+                table.getColumn("createdAt")?.getFilterValue()
+                  ? new Date(
+                      table.getColumn("createdAt")?.getFilterValue() as string
+                    )
+                  : undefined
+              }
+              onValueChange={(date) => {
+                if (date) {
+                  table
+                    .getColumn("createdAt")
+                    ?.setFilterValue(date.toISOString());
+                } else {
+                  table.getColumn("createdAt")?.setFilterValue(undefined);
+                }
+              }}
+            />
+          </div>
+        </div>
+        <div className="flex items-center flex-col gap-2">
+          <Link href="/app/finance/expense/create">
+            <Button variant="destructive">Tambah Pengeluaran</Button>
+          </Link>
+          <Link href="/app/finance/income/create">
+            <Button disabled>Tambah Pemasukan</Button>
+          </Link>
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>

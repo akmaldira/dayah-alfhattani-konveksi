@@ -22,13 +22,13 @@ export default async function ExpensePage() {
     orderBy: {
       createdAt: "desc",
     },
-    take: 10,
+    take: 5,
   });
 
   const expenseSummary = await getTransactionSummary("EXPENSE");
 
   return (
-    <div>
+    <div className="pb-20">
       <PageLabel label="Pengeluaran" />
       <ExpenseClient
         expenses={expenses}

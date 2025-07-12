@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
 import { ShoppingBag } from "lucide-react";
+import { columns } from "./columns";
+import { DataTable } from "./data-table";
 
 export default async function FinancePage() {
   const cashBalance = await prisma.cashBalance.upsert({
@@ -12,11 +14,23 @@ export default async function FinancePage() {
     update: {},
     create: {},
   });
+  const cashAuditLogs = await prisma.cashAuditLog.findMany({
+    include: {
+      transaction: {
+        include: {
+          items: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
   return (
-    <div>
+    <div className="space-y-4 pb-20">
       <PageLabel label="Keuangan" />
-      <div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="gap-2">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Saldo Kas</CardTitle>
@@ -29,6 +43,7 @@ export default async function FinancePage() {
           </CardContent>
         </Card>
       </div>
+      <DataTable columns={columns} data={cashAuditLogs} />
     </div>
   );
 }
