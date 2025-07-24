@@ -26,6 +26,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         email: {},
         password: {},
       },
+      // @ts-ignore
       authorize: async (credentials) => {
         let user = null;
 

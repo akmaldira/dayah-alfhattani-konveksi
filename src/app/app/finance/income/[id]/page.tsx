@@ -22,7 +22,11 @@ export default async function IncomeDetailPage({ params }: { params: Params }) {
     include: {
       items: {
         include: {
-          mutation: true,
+          mutation: {
+            include: {
+              variant: true,
+            },
+          },
         },
       },
     },

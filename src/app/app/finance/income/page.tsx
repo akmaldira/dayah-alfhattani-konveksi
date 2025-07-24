@@ -10,7 +10,11 @@ export default async function IncomePage() {
     include: {
       items: {
         include: {
-          mutation: true,
+          mutation: {
+            include: {
+              variant: true,
+            },
+          },
         },
       },
     },
