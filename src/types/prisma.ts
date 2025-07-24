@@ -15,6 +15,7 @@ export type ItemWithRelations = Prisma.ItemGetPayload<{
 
 export type StockMutationWithRelations = Prisma.StockMutationGetPayload<{
   include: {
+    unitConversion: true;
     variant: {
       include: {
         item: true;
@@ -60,6 +61,65 @@ export type CashAuditLogWithRelations = Prisma.CashAuditLogGetPayload<{
     transaction: {
       include: {
         items: true;
+      };
+    };
+  };
+}>;
+
+export type EmployeeWithRelations = Prisma.EmployeeGetPayload<{
+  select: {
+    id: true;
+    name: true;
+    createdAt: true;
+    updatedAt: true;
+    user: {
+      select: {
+        id: true;
+        name: true;
+        email: true;
+      };
+    };
+  };
+}>;
+
+export type EmployeeAttendanceWithRelations =
+  Prisma.EmployeeAttendanceGetPayload<{
+    include: {
+      employee: true;
+    };
+  }>;
+
+export type DailyWorkWithRelations = Prisma.DailyWorkGetPayload<{
+  include: {
+    employee: true;
+  };
+}>;
+
+export type EmployeeSalaryTransaction = Prisma.TransactionGetPayload<{
+  include: {
+    items: {
+      include: {
+        employee: true;
+      };
+    };
+  };
+}>;
+
+export type TransactionWithAllRelations = Prisma.TransactionGetPayload<{
+  include: {
+    items: {
+      include: {
+        employee: true;
+        mutation: {
+          include: {
+            unitConversion: true;
+            variant: {
+              include: {
+                item: true;
+              };
+            };
+          };
+        };
       };
     };
   };

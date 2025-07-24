@@ -41,6 +41,9 @@ async function main() {
     for (const row of rows) {
       const values = columnNames.map((col) => {
         const key = col.replace(/"/g, "");
+        if (key === "created_at" || key === "updated_at") {
+          return sqlEscape(new Date().toISOString());
+        }
         return sqlEscape(row[key]);
       });
       sqlDump += `INSERT INTO "${tableName}" (${columnNames.join(

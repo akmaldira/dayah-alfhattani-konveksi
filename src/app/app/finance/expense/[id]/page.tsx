@@ -33,7 +33,19 @@ export default async function ExpenseDetailPage({
     include: {
       items: {
         include: {
-          mutation: true,
+          mutation: {
+            include: {
+              variant: {
+                include: {
+                  item: {
+                    include: {
+                      conversions: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
     },

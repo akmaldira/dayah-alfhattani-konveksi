@@ -30,6 +30,7 @@ enum TransactionType {
   INCOME
   EXPENSE
   ADJUSTMENT
+  EMPLOYEE_LOAN // Seperate from expense
 }
 
 enum CashAuditLogType {
@@ -38,20 +39,29 @@ enum CashAuditLogType {
   ADJUSTMENT
 }
 
+enum EmployeeAttendanceStatus {
+  PRESENT
+  ABSENT
+  OTHER
+}
+
 model User {
-  id             String          @id @default(cuid())
-  name           String?
-  email          String          @unique
-  password       String
-  image          String?
-  role           UserRole        @default(USER)
-  createdAt      DateTime        @default(now()) @map("created_at")
-  updatedAt      DateTime        @updatedAt @map("updated_at")
-  sessions       Session[]
-  items          Item[]
-  stockMutations StockMutation[]
-  transactions   Transaction[]
-  cashAuditLogs  CashAuditLog[]
+  id                 String               @id @default(cuid())
+  name               String?
+  email              String               @unique
+  password           String
+  image              String?
+  role               UserRole             @default(USER)
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+  sessions           Session[]
+  items              Item[]
+  stockMutations     StockMutation[]
+  transactions       Transaction[]
+  cashAuditLogs      CashAuditLog[]
+  employeeId         String               @unique @map("employee_id")
+  employee           Employee             @relation(fields: [employeeId], references: [id])
+  createdAttendances EmployeeAttendance[]
 
   @@map("user")
 }
@@ -105,33 +115,37 @@ model Variant {
 }
 
 model UnitConversion {
-  id         String   @id @default(cuid())
-  item       Item     @relation(fields: [itemId], references: [id])
-  itemId     String   @map("item_id")
-  fromUnit   String   @map("from_unit") // e.g. "ball"
-  toUnit     String   @map("to_unit") // e.g. "meter"
-  multiplier Float    @map("multiplier") // e.g. 1 ball = 12 meter → multiplier = 12
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id             String          @id @default(cuid())
+  item           Item            @relation(fields: [itemId], references: [id])
+  itemId         String          @map("item_id")
+  fromUnit       String          @map("from_unit") // e.g. "ball"
+  toUnit         String          @map("to_unit") // e.g. "meter"
+  multiplier     Float           @map("multiplier") // e.g. 1 ball = 12 meter → multiplier = 12
+  stockMutations StockMutation[]
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
 
   @@unique([itemId, fromUnit, toUnit])
   @@map("unit_conversion")
 }
 
 model StockMutation {
-  id              String            @id @default(cuid())
-  variant         Variant           @relation(fields: [variantId], references: [id])
-  variantId       String            @map("variant_id")
-  type            StockMutationType // IN | OUT | ADJUSTMENT
-  quantity        Float // always in base unit
-  unit            String // e.g. "meter"
-  note            String?
-  source          String? // e.g. "Purchase", "Used for Production"
-  createdById     String            @map("created_by_id")
-  createdBy       User              @relation(fields: [createdById], references: [id])
-  createdAt       DateTime          @default(now()) @map("created_at")
-  updatedAt       DateTime          @updatedAt @map("updated_at")
-  transactionItem TransactionItem?
+  id               String            @id @default(cuid())
+  variant          Variant           @relation(fields: [variantId], references: [id])
+  variantId        String            @map("variant_id")
+  unitConversionId String            @map("unit_conversion_id")
+  unitConversion   UnitConversion    @relation(fields: [unitConversionId], references: [id])
+  type             StockMutationType // IN | OUT | ADJUSTMENT
+  quantity         Float // always in base unit
+  note             String?
+  source           String? // e.g. "Purchase", "Used for Production"
+  createdById      String            @map("created_by_id")
+  createdBy        User              @relation(fields: [createdById], references: [id])
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  transactionItem  TransactionItem?
+  dailyWork        DailyWork?        @relation(fields: [dailyWorkId], references: [id])
+  dailyWorkId      String?           @map("daily_work_id")
 
   @@map("stock_mutation")
 }
@@ -183,6 +197,8 @@ model TransactionItem {
   transaction   Transaction    @relation(fields: [transactionId], references: [id])
   mutationId    String?        @unique @map("mutation_id")
   mutation      StockMutation? @relation(fields: [mutationId], references: [id])
+  employeeId    String?        @map("employee_id")
+  employee      Employee?      @relation(fields: [employeeId], references: [id])
   name          String
   quantity      Float
   unit          String?
@@ -192,4 +208,45 @@ model TransactionItem {
   updatedAt     DateTime       @updatedAt @map("updated_at")
 
   @@map("transaction_item")
+}
+
+model Employee {
+  id               String               @id @default(cuid())
+  name             String
+  user             User?
+  attendances      EmployeeAttendance[]
+  dailyWorks       DailyWork[]
+  transactionItems TransactionItem[]
+  createdAt        DateTime             @default(now()) @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
+
+  @@map("employee")
+}
+
+model EmployeeAttendance {
+  id          String                   @id @default(cuid())
+  employeeId  String                   @map("employee_id")
+  employee    Employee                 @relation(fields: [employeeId], references: [id])
+  status      EmployeeAttendanceStatus
+  date        DateTime
+  createdBy   User                     @relation(fields: [createdById], references: [id])
+  createdById String                   @map("created_by_id")
+  createdAt   DateTime                 @default(now()) @map("created_at")
+  updatedAt   DateTime                 @updatedAt @map("updated_at")
+
+  @@unique([employeeId, date])
+  @@map("employee_attendance")
+}
+
+model DailyWork {
+  id             String          @id @default(cuid())
+  employeeId     String          @map("employee_id")
+  employee       Employee        @relation(fields: [employeeId], references: [id])
+  name           String
+  description    String?
+  stockMutations StockMutation[]
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+
+  @@map("daily_work")
 }

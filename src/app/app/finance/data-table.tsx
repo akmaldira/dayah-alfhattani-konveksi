@@ -47,9 +47,11 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pt-4">
       <div className="flex items-center gap-2 justify-between">
-        <div />
+        <div>
+          <h1 className="text-2xl font-bold">Riwayat Perubahan Saldo</h1>
+        </div>
         <div className="flex items-center gap-2">
           <UpsertCashDialog type="decrease" />
           <UpsertCashDialog type="increase" />

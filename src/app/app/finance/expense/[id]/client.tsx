@@ -13,6 +13,15 @@ import {
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Form,
   FormControl,
   FormDescription,
@@ -56,6 +65,7 @@ import { ArrowLeftIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 function calculateQuantityToDefaultUnit(
   item?: ItemWithRelations,
@@ -78,6 +88,7 @@ export default function ExpenseByIdClient({
   items: ItemWithRelations[];
 }) {
   const [isPending, startTransition] = React.useTransition();
+  const [dialogOpen, setDialogOpen] = React.useState(false);
   const router = useRouter();
   const form = useForm<UpsertTransactionSchema>({
     resolver: zodResolver(upsertTransactionSchema),
@@ -101,8 +112,12 @@ export default function ExpenseByIdClient({
 
   function onSubmit(values: UpsertTransactionSchema) {
     startTransition(async () => {
-      const response = await createExpenseAction(values);
-      handleActionResponse(response);
+      if (expense) {
+        toast.error("Fitur belum tersedia");
+      } else {
+        const response = await createExpenseAction(values);
+        handleActionResponse(response);
+      }
     });
   }
 
@@ -113,7 +128,7 @@ export default function ExpenseByIdClient({
   const watchItems = form.watch("items");
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       <div className="flex items-center justify-between">
         <Button variant="outline" onClick={() => router.back()}>
           <ArrowLeftIcon className="w-4 h-4" />
@@ -524,9 +539,42 @@ export default function ExpenseByIdClient({
                 )}
               />
               <div className="flex justify-end">
-                <Button type="submit" disabled={isPending} loading={isPending}>
-                  Simpan
-                </Button>
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      type="button"
+                      disabled={isPending || !form.formState.isValid}
+                      loading={isPending}
+                    >
+                      Simpan
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Simpan Pengeluaran</DialogTitle>
+                      <DialogDescription>
+                        Pastikan semua data sudah benar sebelum menyimpan,
+                        karena aksi ini tidak dapat diubah
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setDialogOpen(false)}
+                      >
+                        Batal
+                      </Button>
+                      <Button
+                        onClick={() => form.handleSubmit(onSubmit)()}
+                        disabled={isPending}
+                        loading={isPending}
+                      >
+                        Simpan
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </form>
           </Form>

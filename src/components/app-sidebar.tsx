@@ -9,9 +9,12 @@ import {
   BanknoteArrowUp,
   Box,
   ChevronUp,
+  Clock,
+  CreditCard,
   HomeIcon,
   ShoppingCart,
   User2,
+  UserCheck,
 } from "lucide-react";
 import { User } from "next-auth";
 import Link from "next/link";
@@ -78,7 +81,7 @@ const sidebarItems: SidebarItem[] = [
 const sidebarFinance: SidebarItem[] = [
   {
     type: "single",
-    title: "Uang",
+    title: "Kas",
     href: "/app/finance",
     icon: <Banknote />,
   },
@@ -96,10 +99,43 @@ const sidebarFinance: SidebarItem[] = [
   },
   {
     type: "single",
+    title: "Ambilan Karyawan",
+    href: "/app/finance/employee-loan",
+    icon: <CreditCard />,
+  },
+  {
+    type: "single",
     title: "Riwayat Transaksi",
     href: "/app/finance/transaction",
     icon: <ArrowUpDown />,
   },
+];
+
+const sidebarEmployee: SidebarItem[] = [
+  {
+    type: "single",
+    title: "Karyawan",
+    href: "/app/employee",
+    icon: <User2 />,
+  },
+  {
+    type: "single",
+    title: "Kehadiran",
+    href: "/app/employee/attendance",
+    icon: <UserCheck />,
+  },
+  {
+    type: "single",
+    title: "Kerja Harian",
+    href: "/app/employee/daily-work",
+    icon: <Clock />,
+  },
+  // {
+  //   type: "single",
+  //   title: "Gaji / Ambilan",
+  //   href: "/app/employee/salary",
+  //   icon: <CreditCard />,
+  // },
 ];
 
 function SidebarGroupItem({
@@ -157,7 +193,7 @@ export function AppSidebar({ user }: { user: User }) {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
+          <SidebarGroupLabel>Aplikasi</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarGroupItem items={sidebarDashboard} pathname={pathname} />
@@ -177,6 +213,14 @@ export function AppSidebar({ user }: { user: User }) {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarGroupItem items={sidebarItems} pathname={pathname} />
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Karyawan</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarGroupItem items={sidebarEmployee} pathname={pathname} />
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

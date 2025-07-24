@@ -73,3 +73,9 @@ export const upsertCashSchema = z.discriminatedUnion("action", [
   decreaseCashSchema,
 ]);
 export type UpsertCashSchema = z.infer<typeof upsertCashSchema>;
+
+export const deleteTransactionSchema = z.object({
+  action: z.literal("delete"),
+  id: z.string().min(1, "ID transaksi harus diisi"),
+});
+export type DeleteTransactionSchema = z.infer<typeof deleteTransactionSchema>;

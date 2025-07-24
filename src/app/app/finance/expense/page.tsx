@@ -11,8 +11,10 @@ export default async function ExpensePage() {
     include: {
       items: {
         include: {
+          employee: true,
           mutation: {
             include: {
+              unitConversion: true,
               variant: true,
             },
           },
@@ -22,7 +24,6 @@ export default async function ExpensePage() {
     orderBy: {
       createdAt: "desc",
     },
-    take: 5,
   });
 
   const expenseSummary = await getTransactionSummary("EXPENSE");

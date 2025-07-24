@@ -11,12 +11,15 @@ import {
   formatDate,
   transactionTypeToBadge,
 } from "@/lib/utils";
-import { TransactionWithRelations } from "@/types/prisma";
+import { TransactionWithAllRelations } from "@/types/prisma";
 import { ColumnDef } from "@tanstack/react-table";
 import { Info } from "lucide-react";
+import { EmployeeLoanColumnAction } from "../employee-loan/column-action";
+import { ExpenseColumnAction } from "../expense/columns-action";
+import { IncomeColumnAction } from "../income/columns-action";
 import { ItemDetailDialog } from "../item-detail-dialog";
 
-export const columns: ColumnDef<TransactionWithRelations>[] = [
+export const columns: ColumnDef<TransactionWithAllRelations>[] = [
   {
     id: "id",
     header: "Item",
@@ -107,6 +110,22 @@ export const columns: ColumnDef<TransactionWithRelations>[] = [
     filterFn: (row, _id, filterValue) => {
       const date = new Date(filterValue as string);
       return row.original.createdAt.toDateString() === date.toDateString();
+    },
+  },
+
+  {
+    id: "action",
+    header: "Aksi",
+    cell: ({ row }) => {
+      const transaction = row.original;
+      if (transaction.type === "EMPLOYEE_LOAN") {
+        return <EmployeeLoanColumnAction transaction={transaction} />;
+      } else if (transaction.type === "EXPENSE") {
+        return <ExpenseColumnAction transaction={transaction} />;
+      } else if (transaction.type === "INCOME") {
+        return <IncomeColumnAction transaction={transaction} />;
+      }
+      return null;
     },
   },
 ];

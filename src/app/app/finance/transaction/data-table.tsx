@@ -141,7 +141,7 @@ export function DataTable<TData, TValue>({
             <Button variant="destructive">Tambah Pengeluaran</Button>
           </Link>
           <Link href="/app/finance/income/create">
-            <Button disabled>Tambah Pemasukan</Button>
+            <Button>Tambah Pemasukan</Button>
           </Link>
         </div>
       </div>

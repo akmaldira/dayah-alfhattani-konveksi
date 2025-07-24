@@ -1,4 +1,4 @@
-import { Variant } from "@/lib/prisma/generated";
+import { UnitConversion, Variant } from "@/lib/prisma/generated";
 import { PrismaTransaction } from "@/types/prisma";
 
 export async function updateVariantWithStockAdjustment({
@@ -6,6 +6,7 @@ export async function updateVariantWithStockAdjustment({
   oldVariant,
   newVariant,
   createdById,
+  defaultUnitConversion,
 }: {
   tx: PrismaTransaction;
   oldVariant: Variant;
@@ -14,6 +15,7 @@ export async function updateVariantWithStockAdjustment({
     currentStock: number;
   };
   createdById: string;
+  defaultUnitConversion: UnitConversion;
 }): Promise<Variant> {
   if (oldVariant.currentStock !== newVariant.currentStock) {
     const adjustmentQuantity =
@@ -23,13 +25,15 @@ export async function updateVariantWithStockAdjustment({
         variantId: oldVariant.id,
         type: "ADJUSTMENT",
         quantity: adjustmentQuantity,
-        unit: oldVariant.unit,
+        unitConversionId: defaultUnitConversion.id,
         source: "Perubahan stok",
         note: `${
           adjustmentQuantity > 0 ? "Penambahan" : "Pengurangan"
         } stok, Sebelumnya: ${oldVariant.currentStock} ${
-          oldVariant.unit
-        }, Menjadi: ${newVariant.currentStock} ${oldVariant.unit}`,
+          defaultUnitConversion.fromUnit
+        }, Menjadi: ${newVariant.currentStock} ${
+          defaultUnitConversion.fromUnit
+        }`,
         createdById,
       },
     });

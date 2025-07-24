@@ -30,9 +30,11 @@ const moneyFormatter = Intl.NumberFormat("id-ID", {
 });
 
 export function MoneyInputForm(props: TextInputProps) {
-  const initialValue = props.form.getValues()[props.name]
-    ? moneyFormatter.format(props.form.getValues()[props.name])
-    : moneyFormatter.format(0);
+  const baseValue = props.form.getValues()[props.name];
+  console.log("BASE VALUE", baseValue);
+  const initialValue = baseValue
+    ? moneyFormatter.format(baseValue)
+    : moneyFormatter.format(props.form.watch(props.name));
 
   const [value, setValue] = useReducer((_: any, next: string) => {
     const digits = next.replace(/\D/g, "");

@@ -10,6 +10,8 @@ import {
   AddStockSchema,
   DeleteVariantWithItemIdSchema,
   deleteVariantWithItemIdSchema,
+  removeStockSchema,
+  RemoveStockSchema,
   UpsertVariantWithItemIdSchema,
   upsertVariantWithItemIdSchema,
 } from "@/schema/variant-schema";
@@ -74,11 +76,22 @@ export async function upsertVariantAction(
           throw new Error("Varian tidak ditemukan");
         }
 
+        const defaultUnitConversion = await tx.unitConversion.findFirst({
+          where: {
+            fromUnit: item.defaultUnit,
+          },
+        });
+
+        if (!defaultUnitConversion) {
+          throw new Error("Unit konversi default tidak ditemukan");
+        }
+
         return await updateVariantWithStockAdjustment({
           tx,
           oldVariant,
           newVariant: data,
           createdById: user.id,
+          defaultUnitConversion,
         });
       });
 
@@ -279,7 +292,7 @@ export async function addStockAction(
           variantId: variant.id,
           quantity: data.quantity,
           type: "IN",
-          unit: unit.fromUnit,
+          unitConversionId: unit.id,
           source: "Penambahan stok",
           note: data.note,
           createdById: user.id,
@@ -358,6 +371,127 @@ export async function addStockAction(
     };
   } catch (error: any) {
     console.error(`[addStockAction] ${error.message}`);
+    return {
+      status: "error",
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: error.message,
+      },
+    };
+  }
+}
+
+export async function removeStockAction(
+  values: RemoveStockSchema
+): Promise<ActionResponse<Variant>> {
+  try {
+    const { data, error } = removeStockSchema.safeParse(values);
+
+    if (error) {
+      return {
+        status: "error",
+        error: {
+          code: "VALIDATION_ERROR",
+          message: error.message,
+        },
+      };
+    }
+
+    const session = await auth();
+    const user = session?.user;
+    if (!user) {
+      return {
+        status: "error",
+        redirect: "/signin",
+        error: {
+          code: "UNAUTHORIZED",
+          message: "Anda harus login untuk melakukan tindakan ini",
+        },
+      };
+    }
+    const item = await prisma.item.findUnique({
+      where: {
+        id: data.itemId,
+      },
+    });
+
+    if (!item) {
+      return {
+        status: "error",
+        error: {
+          code: "NOT_FOUND",
+          message: "Barang tidak ditemukan",
+        },
+      };
+    }
+
+    const variant = await prisma.variant.findUnique({
+      where: {
+        id: data._id,
+      },
+    });
+
+    if (!variant) {
+      return {
+        status: "error",
+        error: {
+          code: "NOT_FOUND",
+          message: "Varian tidak ditemukan",
+        },
+      };
+    }
+
+    const unit = await prisma.unitConversion.findUnique({
+      where: {
+        id: data.unitId,
+      },
+    });
+
+    if (!unit) {
+      return {
+        status: "error",
+        error: {
+          code: "NOT_FOUND",
+          message: "Satuan tidak ditemukan",
+        },
+      };
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.stockMutation.create({
+        data: {
+          variantId: variant.id,
+          quantity: data.quantity,
+          type: "OUT",
+          unitConversionId: unit.id,
+          source: "",
+          note: data.note,
+          createdById: user.id,
+        },
+      });
+
+      const stockToDefaultUnit = data.quantity * unit.multiplier;
+      await tx.variant.update({
+        where: {
+          id: variant.id,
+        },
+        data: {
+          currentStock: {
+            decrement: stockToDefaultUnit,
+          },
+        },
+      });
+    });
+
+    revalidatePath("/app/item/stock-history");
+    return {
+      status: "success",
+      data: variant,
+      message: `Stok ${variant.name} berhasil dikeluarkan`,
+      redirect: "/app/item/stock-history",
+    };
+  } catch (error: any) {
+    console.error(`[removeStockAction] ${error.message}`);
     return {
       status: "error",
       error: {

@@ -15,6 +15,11 @@ async function main() {
         password:
           "$2a$10$91R1JsuwXpw5LMP8XXUoJO59EpLyU75mkBRGgZTzol84LEMny2R.K",
         role: "ROOT",
+        employee: {
+          create: {
+            name: "Akmal Dira",
+          },
+        },
       },
     }),
     prisma.cashBalance.upsert({

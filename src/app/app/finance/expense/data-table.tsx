@@ -6,6 +6,7 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -20,6 +21,7 @@ import {
 } from "@/components/ui/table";
 import Link from "next/link";
 import React from "react";
+import PrintExpense from "./print-expense";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -37,6 +39,7 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     state: {
@@ -56,9 +59,12 @@ export function DataTable<TData, TValue>({
           }
         /> */}
         <div />
-        <Link href="/app/finance/expense/create">
-          <Button>Tambah Pengeluaran</Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <PrintExpense />
+          <Link href="/app/finance/expense/create">
+            <Button>Tambah Pengeluaran</Button>
+          </Link>
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>
@@ -109,6 +115,24 @@ export function DataTable<TData, TValue>({
             )}
           </TableBody>
         </Table>
+      </div>
+      <div className="flex items-center justify-end space-x-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Sebelumnya
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Selanjutnya
+        </Button>
       </div>
     </div>
   );

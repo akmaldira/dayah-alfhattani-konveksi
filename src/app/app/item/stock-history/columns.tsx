@@ -48,10 +48,10 @@ export const columns: ColumnDef<StockMutationWithRelations>[] = [
     accessorKey: "quantity",
     header: "Jumlah",
     cell: ({ row }) => {
-      const { quantity, unit } = row.original;
+      const { quantity, unitConversion } = row.original;
       return (
         <div>
-          {quantity} {unit}
+          {quantity} {unitConversion.fromUnit}
         </div>
       );
     },

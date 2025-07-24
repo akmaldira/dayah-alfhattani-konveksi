@@ -12,7 +12,7 @@ import {
   differenceAmountPercentageToString,
   formatCurrency,
 } from "@/lib/utils";
-import { TransactionWithRelations } from "@/types/prisma";
+import { TransactionWithAllRelations } from "@/types/prisma";
 import { PackageOpen, Rss, ShoppingBag, TrendingUp } from "lucide-react";
 import { DailyExpenseChart } from "./chart";
 import { columns } from "./columns";
@@ -26,7 +26,7 @@ export function ExpenseClient({
   amountExpensesWithoutStockMutation,
   trendDaily,
 }: {
-  expenses: TransactionWithRelations[];
+  expenses: TransactionWithAllRelations[];
   countExpenses: {
     thisMonth: number;
     lastMonth: number;
@@ -216,7 +216,7 @@ export function ExpenseClient({
           </CardContent>
         </Card>
       </div>
-      <div className="grid auto-rows-min gap-4 md:grid-cols-2">
+      <div className="grid auto-rows-min gap-4">
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl font-bold">

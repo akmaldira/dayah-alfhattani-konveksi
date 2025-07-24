@@ -77,3 +77,12 @@ export const addStockSchema = z.discriminatedUnion("action", [
   addStockWithOrderSchema,
 ]);
 export type AddStockSchema = z.infer<typeof addStockSchema>;
+
+export const removeStockSchema = z.object({
+  _id: z.string().min(1, "ID varian harus diisi"),
+  itemId: z.string().min(1, "ID barang harus diisi"),
+  unitId: z.string().min(1, "Satuan harus diisi"),
+  quantity: z.coerce.number().min(1, "Jumlah harus diisi"),
+  note: z.string().optional(),
+});
+export type RemoveStockSchema = z.infer<typeof removeStockSchema>;

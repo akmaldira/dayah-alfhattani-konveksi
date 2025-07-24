@@ -5,7 +5,11 @@ import { ItemWithRelations, TransactionWithRelations } from "@/types/prisma";
 import { clsx, type ClassValue } from "clsx";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
-import { StockMutationType, TransactionType } from "./prisma/generated";
+import {
+  EmployeeAttendanceStatus,
+  StockMutationType,
+  TransactionType,
+} from "./prisma/generated";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -73,7 +77,11 @@ export function transactionToUpdateTransaction(
           type: "itemWithVariant" as const,
           name: item.name,
           quantity: item.quantity,
-          unitId: "",
+          unitId:
+            // @ts-ignore
+            item.mutation?.variant.item.conversions.find(
+              (conversion: any) => conversion.fromUnit === item.unit
+            )?.id ?? "",
           supplier: item.supplier ?? "",
           itemId: item.mutation?.variant?.item.id ?? "",
           variantId: item.mutation?.variant.id ?? "",
@@ -141,9 +149,13 @@ export function transactionTypeToBadge(type: TransactionType) {
       config.label = "Pemasukan";
       config.variant = "green";
       break;
-    default:
+    case "ADJUSTMENT":
       config.label = "Perubahan";
       config.variant = "yellow";
+      break;
+    default:
+      config.label = "Ambilan Karyawan";
+      config.variant = "orange";
   }
 
   return config as {
@@ -155,6 +167,35 @@ export function transactionTypeToBadge(type: TransactionType) {
       | "yellow"
       | "orange"
       | "purple";
+  };
+}
+
+export function employeeAttendanceStatusToBadge(
+  status: EmployeeAttendanceStatus
+) {
+  const config = {
+    label: "",
+    variant: "default",
+  };
+
+  switch (status) {
+    case "PRESENT":
+      config.label = "Hadir";
+      config.variant = "green";
+      break;
+    case "ABSENT":
+      config.label = "Tidak Hadir";
+      config.variant = "destructive";
+      break;
+    default:
+      config.label = "Lainnya";
+      config.variant = "yellow";
+      break;
+  }
+
+  return config as {
+    label: string;
+    variant: "default" | "green" | "destructive" | "yellow" | "orange";
   };
 }
 

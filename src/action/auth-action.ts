@@ -47,6 +47,11 @@ export async function signUpAction(
         name: values.name,
         email: values.email,
         password: hashPassword(values.password),
+        employee: {
+          create: {
+            name: values.name,
+          },
+        },
       },
     });
 

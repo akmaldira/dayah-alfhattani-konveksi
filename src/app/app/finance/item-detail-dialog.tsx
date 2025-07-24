@@ -48,6 +48,8 @@ export function ItemDetailDialog({
               ? "Pengeluaran"
               : type == "INCOME"
               ? "Pemasukan"
+              : type == "EMPLOYEE_LOAN"
+              ? "Ambilan"
               : "Perubahan"}
           </DialogTitle>
           <DialogDescription></DialogDescription>
@@ -62,6 +64,8 @@ export function ItemDetailDialog({
                   ? "Pengeluaran"
                   : type == "INCOME"
                   ? "Pemasukan"
+                  : type == "EMPLOYEE_LOAN"
+                  ? ""
                   : "Perubahan"}
               </TableHead>
               <TableHead className="font-bold">Jumlah</TableHead>

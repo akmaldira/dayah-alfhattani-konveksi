@@ -6,12 +6,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { TransactionWithRelations } from "@/types/prisma";
+import { TransactionWithAllRelations } from "@/types/prisma";
 import { ColumnDef } from "@tanstack/react-table";
 import { Info } from "lucide-react";
 import { ItemDetailDialog } from "../item-detail-dialog";
+import { ExpenseColumnAction } from "./columns-action";
 
-export const columns: ColumnDef<TransactionWithRelations>[] = [
+export const columns: ColumnDef<TransactionWithAllRelations>[] = [
   {
     id: "id",
     accessorKey: "id",
@@ -37,6 +38,15 @@ export const columns: ColumnDef<TransactionWithRelations>[] = [
     enableSorting: false,
   },
   {
+    accessorKey: "source",
+    header: "Supplier",
+    cell: ({ row }) => {
+      const { source } = row.original;
+      if (!source) return "-";
+      return <div>{source}</div>;
+    },
+  },
+  {
     accessorKey: "totalAmount",
     header: "Total Harga",
     cell: ({ row }) => {
@@ -56,14 +66,13 @@ export const columns: ColumnDef<TransactionWithRelations>[] = [
     },
   },
   {
-    accessorKey: "source",
+    accessorKey: "note",
     header: "Catatan",
     cell: ({ row }) => {
-      const { source, note } = row.original;
-      if (!source) return "-";
+      const { note } = row.original;
+      if (!note) return "-";
       return (
         <div className="flex items-center gap-2">
-          <h1 className="text-sm font-medium">{source}</h1>
           {note && (
             <Tooltip>
               <TooltipTrigger>
@@ -83,6 +92,14 @@ export const columns: ColumnDef<TransactionWithRelations>[] = [
     header: "Tanggal",
     cell: ({ row }) => {
       return <div>{formatDate(row.original.createdAt)}</div>;
+    },
+  },
+  {
+    id: "action",
+    header: "Aksi",
+    cell: ({ row }) => {
+      const transaction = row.original;
+      return <ExpenseColumnAction transaction={transaction} />;
     },
   },
 ];

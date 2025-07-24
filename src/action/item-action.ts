@@ -8,6 +8,31 @@ import { ActionResponse } from "@/types/action";
 import { ItemWithRelations } from "@/types/prisma";
 import { revalidatePath } from "next/cache";
 
+export async function getItemsAction(): Promise<
+  ActionResponse<ItemWithRelations[]>
+> {
+  try {
+    const items = await prisma.item.findMany({
+      include: {
+        variants: true,
+        conversions: true,
+      },
+    });
+    return {
+      status: "success",
+      data: items,
+    };
+  } catch (error: any) {
+    console.error(`[getItemsAction] ${error.message}`);
+    return {
+      status: "error",
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: error.message,
+      },
+    };
+  }
+}
 export async function upsertItemAction(
   values: UpsertItemSchema
 ): Promise<ActionResponse<ItemWithRelations>> {
@@ -66,11 +91,21 @@ export async function upsertItemAction(
                 throw new Error("Variant tidak ditemukan");
               }
 
+              const defaultUnitConversion = await tx.unitConversion.findFirst({
+                where: {
+                  fromUnit: data.defaultUnit,
+                },
+              });
+              if (!defaultUnitConversion) {
+                throw new Error("Unit konversi default tidak ditemukan");
+              }
+
               await updateVariantWithStockAdjustment({
                 tx,
                 oldVariant,
                 newVariant: variant,
                 createdById: user.id,
+                defaultUnitConversion,
               });
             }
           }
@@ -159,6 +194,12 @@ export async function upsertItemAction(
           createdBy: true,
         },
       });
+      const defaultUnitConversion = item.conversions.find(
+        (conversion) => conversion.fromUnit === data.defaultUnit
+      );
+      if (!defaultUnitConversion) {
+        throw new Error("Unit konversi default tidak ditemukan");
+      }
       await prisma.stockMutation.createMany({
         data: item.variants
           .filter((variant) => variant.currentStock > 0)
@@ -166,7 +207,7 @@ export async function upsertItemAction(
             variantId: variant.id,
             type: "IN",
             quantity: variant.currentStock,
-            unit: data.defaultUnit,
+            unitConversionId: defaultUnitConversion.id,
             source: "Stok Awal",
             note: `Stok awal saat pembuatan varian ${variant.name}`,
             createdById: user.id,

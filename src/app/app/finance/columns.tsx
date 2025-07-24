@@ -18,16 +18,24 @@ import { ItemDetailDialog } from "./item-detail-dialog";
 
 export const columns: ColumnDef<CashAuditLogWithRelations>[] = [
   {
+    accessorKey: "type",
+    header: "Tipe",
+    cell: ({ row }) => {
+      const type = row.original.type;
+      const config = transactionTypeToBadge(type);
+      return <Badge variant={config.variant}>{config.label}</Badge>;
+    },
+  },
+  {
     accessorKey: "amount",
     header: "Jumlah",
     cell: ({ row }) => {
       const type = row.original.type;
-      const config = transactionTypeToBadge(type);
       return (
-        <Badge variant={config.variant} className="capitalize">
+        <>
           {type === "INCOME" ? "+" : type === "EXPENSE" ? "-" : "±"}
           {formatCurrency(row.original.amount)}
-        </Badge>
+        </>
       );
     },
   },

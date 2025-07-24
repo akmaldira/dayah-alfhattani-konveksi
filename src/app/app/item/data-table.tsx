@@ -40,6 +40,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { DeleteVariantDialog } from "./delete-variant-dialog";
+import PrintItem from "./print-item";
 import { UpsertVariantDialog } from "./upsert-variant-dialog";
 
 export function DataTable({
@@ -104,12 +105,15 @@ export function DataTable({
             table.getColumn("name")?.setFilterValue(event.target.value)
           }
         />
-        <Link href="/app/item/create">
-          <Button>
-            <PlusIcon className="w-4 h-4" />
-            Tambah Barang
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <PrintItem />
+          <Link href="/app/item/create">
+            <Button>
+              <PlusIcon className="w-4 h-4" />
+              Tambah Barang
+            </Button>
+          </Link>
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>

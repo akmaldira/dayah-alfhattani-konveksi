@@ -30,9 +30,9 @@ import {
 } from "@/components/ui/table";
 import { stockMutationTypeToBadge } from "@/lib/utils";
 import { ItemWithRelations } from "@/types/prisma";
-import { MinusIcon } from "lucide-react";
 import React from "react";
 import { AddStockDialog } from "../in/add-stock-dialog";
+import { RemoveStockDialog } from "../out/remove-stock-dialog";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -153,12 +153,8 @@ export function DataTable<TData, TValue>({
             />
           </div>
         </div>
-        {/* <UpsertStockMutationDialog /> */}
         <div className="flex items-center flex-col gap-2">
-          <Button variant="destructive" disabled>
-            <MinusIcon className="w-4 h-4" />
-            Barang Keluar
-          </Button>
+          <RemoveStockDialog items={items} />
           <AddStockDialog items={items} />
         </div>
       </div>
