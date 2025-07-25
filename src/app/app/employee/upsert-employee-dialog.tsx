@@ -169,6 +169,7 @@ export default function UpsertEmployeeDialog({
                           <Button
                             variant="ghost"
                             size="icon"
+                            type="button"
                             className="absolute right-2 top-1/2 -translate-y-1/2"
                             onClick={() => setShowPassword(!showPassword)}
                           >
