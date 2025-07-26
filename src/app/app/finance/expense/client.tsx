@@ -14,9 +14,22 @@ import {
 } from "@/lib/utils";
 import { TransactionWithAllRelations } from "@/types/prisma";
 import { PackageOpen, Rss, ShoppingBag, TrendingUp } from "lucide-react";
-import { DailyExpenseChart } from "./chart";
+import dynamic from "next/dynamic";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
+
+// Lazy load the chart component to reduce initial bundle size
+const DailyExpenseChart = dynamic(
+  () => import("./chart").then((mod) => ({ default: mod.DailyExpenseChart })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[300px] flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading chart...</div>
+      </div>
+    ),
+  }
+);
 
 export function ExpenseClient({
   expenses,
