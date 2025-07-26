@@ -5,8 +5,13 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "build:analyze": "ANALYZE=true next build",
     "start": "next start -p 80",
-    "lint": "next lint"
+    "start:prod": "NODE_ENV=production next start -p 80",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "build:prod": "NODE_ENV=production next build"
   },
   "prisma": {
     "seed": "bun prisma/seed.ts"
@@ -52,6 +57,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@next/bundle-analyzer": "^15.4.4",
     "@tailwindcss/postcss": "^4",
     "@types/bun": "^1.2.18",
     "@types/file-saver": "^2.0.7",

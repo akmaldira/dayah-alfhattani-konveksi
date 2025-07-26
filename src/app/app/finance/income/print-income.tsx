@@ -12,13 +12,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { exportToExcel } from "@/lib/excel-utils";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { EmployeeSalaryTransaction } from "@/types/prisma";
 import { useQuery } from "@tanstack/react-query";
 import { endOfMonth, startOfMonth } from "date-fns";
-import { saveAs } from "file-saver";
 import React from "react";
-import * as XLSX from "xlsx";
 
 export default function PrintIncome() {
   const [fromDate, setFromDate] = React.useState<Date | undefined>(
@@ -27,7 +26,9 @@ export default function PrintIncome() {
   const [toDate, setToDate] = React.useState<Date | undefined>(
     endOfMonth(new Date())
   );
-  const incomeService = useQuery({
+  const [isExporting, setIsExporting] = React.useState(false);
+  
+  const employeeLoanService = useQuery({
     queryKey: ["income", fromDate, toDate],
     queryFn: async () => {
       const response = await getTransactionsAction(fromDate, toDate, "INCOME");
@@ -39,62 +40,81 @@ export default function PrintIncome() {
   });
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
-  function handleDownload(data: EmployeeSalaryTransaction[]) {
-    const worksheet = XLSX.utils.json_to_sheet(
-      data.map((item) => ({
-        pemasukan: item.source || "",
+  async function handleDownload(data: EmployeeSalaryTransaction[]) {
+    setIsExporting(true);
+    try {
+      const exportData = data.map((item) => ({
+        customer: item.source || "",
         item: item.items
           .map((item) => `${item.name} (Quantity: ${item.quantity})`)
           .join(", "),
         jumlah: formatCurrency(item.totalAmount),
         tanggal: formatDate(item.createdAt),
-        keterangan: item.note,
-      }))
-    );
+        keterangan: item.note || "",
+      }));
 
-    // Create workbook and append worksheet
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+      const today = new Date();
+      const dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
-    // Create binary buffer
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-
-    // Save the file
-    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(blob, `pemasukan-${formatDate(new Date())}.xlsx`);
+      await exportToExcel({
+        data: exportData,
+        filename: `income-report-${dateString}.xlsx`,
+        sheetName: "Income Report",
+      });
+      
+      setDialogOpen(false);
+    } catch (error) {
+      console.error("Export failed:", error);
+    } finally {
+      setIsExporting(false);
+    }
   }
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Download</Button>
+        <Button size="sm" variant="outline">
+          Export Excel
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Download</DialogTitle>
+          <DialogTitle>Export Income Report</DialogTitle>
           <DialogDescription>
-            Download atau Cetak data pemasukan
+            Choose date range for the income report
           </DialogDescription>
         </DialogHeader>
-        <div className="py-4 grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-2 items-center">
-            <h4>Tanggal Awal</h4>
-            <DateTimePicker value={fromDate} onValueChange={setFromDate} />
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="from-date" className="text-right">
+              From Date
+            </label>
+            <div className="col-span-3">
+              <DateTimePicker
+                value={fromDate}
+                onValueChange={setFromDate}
+              />
+            </div>
           </div>
-          <div className="flex flex-col gap-2 items-center">
-            <h4>Tanggal Akhir</h4>
-            <DateTimePicker value={toDate} onValueChange={setToDate} />
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="to-date" className="text-right">
+              To Date
+            </label>
+            <div className="col-span-3">
+              <DateTimePicker
+                value={toDate}
+                onValueChange={setToDate}
+              />
+            </div>
           </div>
         </div>
         <DialogFooter>
           <Button
-            onClick={() => handleDownload(incomeService.data ?? [])}
-            className="w-full"
+            type="submit"
+            onClick={() => handleDownload(employeeLoanService.data || [])}
+            disabled={!employeeLoanService.data || isExporting}
           >
-            Download
+            {isExporting ? "Exporting..." : "Download Excel"}
           </Button>
         </DialogFooter>
       </DialogContent>

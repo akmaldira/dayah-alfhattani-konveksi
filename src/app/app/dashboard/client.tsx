@@ -4,157 +4,136 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
-import { TrendingDown, TrendingUp } from "lucide-react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { formatCurrency } from "@/lib/utils";
+import { BarChart3, DollarSign, TrendingDown, TrendingUp } from "lucide-react";
+import dynamic from "next/dynamic";
+import React from "react";
 
-const chartConfig = {
-  income: {
-    label: "Pemasukan",
-    color: "#22c55e", // Green - positive income
-  },
-  expense: {
-    label: "Pengeluaran",
-    color: "#ef4444", // Red - expenses
-  },
-  employee_loan: {
-    label: "Ambilan Karyawan",
-    color: "#f59e0b", // Amber - employee loans
-  },
-  net: {
-    label: "Net",
-    color: "#3b82f6", // Blue - net result
-  },
-} satisfies ChartConfig;
+// Lazy load the entire chart as a single component to avoid typing issues
+const DashboardChart = dynamic(
+  () => import("./dashboard-chart"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[300px] flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading chart...</div>
+      </div>
+    ),
+  }
+);
 
 export default function DashboardClient({
   monthlyExpense,
   monthlyIncome,
   monthlyEmployeeLoan,
 }: {
-  monthlyExpense: { date: string; total_amount: number }[];
-  monthlyIncome: { date: string; total_amount: number }[];
-  monthlyEmployeeLoan: { date: string; total_amount: number }[];
+  monthlyExpense: {
+    date: string;
+    total_amount: number;
+  }[];
+  monthlyIncome: {
+    date: string;
+    total_amount: number;
+  }[];
+  monthlyEmployeeLoan: {
+    date: string;
+    total_amount: number;
+  }[];
 }) {
-  // Create a comprehensive data structure
-  const allMonths = new Set([
-    ...monthlyExpense.map((item) => format(new Date(item.date), "yyyy-MM")),
-    ...monthlyIncome.map((item) => format(new Date(item.date), "yyyy-MM")),
-    ...monthlyEmployeeLoan.map((item) =>
-      format(new Date(item.date), "yyyy-MM")
-    ),
-  ]);
+  // Process data for chart (memoized for performance)
+  const chartData = React.useMemo(() => {
+    const allMonths = new Set([
+      ...monthlyIncome.map((item) => item.date),
+      ...monthlyExpense.map((item) => item.date),
+      ...monthlyEmployeeLoan.map((item) => item.date),
+    ]);
 
-  const chartData = Array.from(allMonths)
-    .map((monthKey) => {
-      const expenseItem = monthlyExpense.find(
-        (item) => format(new Date(item.date), "yyyy-MM") === monthKey
-      );
-      const incomeItem = monthlyIncome.find(
-        (item) => format(new Date(item.date), "yyyy-MM") === monthKey
-      );
-      const loanItem = monthlyEmployeeLoan.find(
-        (item) => format(new Date(item.date), "yyyy-MM") === monthKey
-      );
+    return Array.from(allMonths)
+      .sort()
+      .map((month) => {
+        const income =
+          monthlyIncome.find((item) => item.date === month)?.total_amount || 0;
+        const expense =
+          monthlyExpense.find((item) => item.date === month)?.total_amount || 0;
+        const employee_loan =
+          monthlyEmployeeLoan.find((item) => item.date === month)
+            ?.total_amount || 0;
 
-      const expense = expenseItem?.total_amount || 0;
-      const income = incomeItem?.total_amount || 0;
-      const employeeLoan = loanItem?.total_amount || 0;
-      const net = income - expense - employeeLoan;
+        return {
+          month: new Date(month).toLocaleDateString("id-ID", {
+            month: "short",
+            year: "numeric",
+          }),
+          income,
+          expense,
+          employee_loan,
+        };
+      });
+  }, [monthlyIncome, monthlyExpense, monthlyEmployeeLoan]);
 
-      return {
-        month: format(new Date(monthKey + "-01"), "MMM yyyy", { locale: id }),
-        income,
-        expense: -expense, // Negative for visual representation
-        employee_loan: -employeeLoan, // Negative for visual representation
-        net,
-        monthKey,
-      };
-    })
-    .sort((a, b) => a.monthKey.localeCompare(b.monthKey));
+  // Calculate totals (memoized for performance)
+  const totals = React.useMemo(() => {
+    const totalIncome = chartData.reduce((sum, item) => sum + item.income, 0);
+    const totalExpense = chartData.reduce(
+      (sum, item) => sum + item.expense,
+      0
+    );
+    const totalEmployeeLoan = chartData.reduce(
+      (sum, item) => sum + item.employee_loan,
+      0
+    );
 
-  // Calculate summary statistics
-  const totalIncome = chartData.reduce((sum, item) => sum + item.income, 0);
-  const totalExpense = chartData.reduce(
-    (sum, item) => sum + Math.abs(item.expense),
-    0
-  );
-  const totalEmployeeLoan = chartData.reduce(
-    (sum, item) => sum + Math.abs(item.employee_loan),
-    0
-  );
-  const netTotal = totalIncome - totalExpense - totalEmployeeLoan;
-  const isPositiveTrend = netTotal > 0;
+    return { totalIncome, totalExpense, totalEmployeeLoan };
+  }, [chartData]);
 
   return (
-    <div className="space-y-6">
+    <div className="grid gap-4">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium ">
-              Total Pemasukan
-            </CardTitle>
-            <div className="w-4 h-4 rounded-full bg-green-500"></div>
+            <CardTitle className="text-sm font-medium">Total Pemasukan</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              Rp {totalIncome.toLocaleString("id-ID")}
+            <div className="text-2xl font-bold">
+              {formatCurrency(totals.totalIncome)}
             </div>
             <p className="text-xs text-muted-foreground">
-              Total pendapatan periode ini
+              Dari semua transaksi
             </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium ">
+            <CardTitle className="text-sm font-medium">
               Total Pengeluaran
             </CardTitle>
-            <div className="w-4 h-4 rounded-full bg-red-500"></div>
+            <TrendingDown className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              Rp {totalExpense.toLocaleString("id-ID")}
+            <div className="text-2xl font-bold">
+              {formatCurrency(totals.totalExpense)}
             </div>
             <p className="text-xs text-muted-foreground">
-              Total biaya periode ini
+              Dari semua transaksi
             </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium ">
-              Total Ambilan Karyawan
-            </CardTitle>
-            <div className="w-4 h-4 rounded-full bg-amber-500"></div>
+            <CardTitle className="text-sm font-medium">Total Gaji</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-600">
-              Rp {totalEmployeeLoan.toLocaleString("id-ID")}
+            <div className="text-2xl font-bold">
+              {formatCurrency(totals.totalEmployeeLoan)}
             </div>
             <p className="text-xs text-muted-foreground">
-              Total advance karyawan
+              Dari semua transaksi
             </p>
           </CardContent>
         </Card>
@@ -163,135 +142,17 @@ export default function DashboardClient({
       {/* Chart Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Laporan Keuangan Bulanan</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5" />
+            Ringkasan Bulanan
+          </CardTitle>
           <CardDescription>
-            Ringkasan pemasukan, pengeluaran, dan ambilan karyawan
+            Perbandingan pemasukan, pengeluaran, dan gaji per bulan
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={chartConfig}>
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart
-                data={chartData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  vertical={false}
-                  stroke="#e5e7eb"
-                />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: 12, fill: "#6b7280" }}
-                  interval={0}
-                  angle={-45}
-                  textAnchor="end"
-                  height={60}
-                  axisLine={{ stroke: "#d1d5db" }}
-                />
-                <YAxis
-                  tick={{ fontSize: 12, fill: "#6b7280" }}
-                  tickFormatter={(value) =>
-                    `${Math.abs(value).toLocaleString()}`
-                  }
-                  axisLine={{ stroke: "#d1d5db" }}
-                />
-                <ChartTooltip
-                  content={
-                    <ChartTooltipContent
-                      formatter={(value, name) => [
-                        <div key={name} className="flex items-center gap-2">
-                          <div
-                            className="w-3 h-3 rounded-full"
-                            style={{
-                              backgroundColor:
-                                chartConfig[name as keyof typeof chartConfig]
-                                  ?.color,
-                            }}
-                          />
-                          <span>
-                            {chartConfig[name as keyof typeof chartConfig]
-                              ?.label || name}
-                            : Rp{" "}
-                            {Math.abs(Number(value)).toLocaleString("id-ID")}
-                          </span>
-                        </div>,
-                        "",
-                      ]}
-                      className="shadow-lg border rounded-lg"
-                    />
-                  }
-                />
-                <Bar
-                  dataKey="income"
-                  fill={chartConfig.income.color}
-                  name="income"
-                  stroke={chartConfig.income.color}
-                  strokeWidth={0}
-                />
-                <Bar
-                  dataKey="expense"
-                  fill={chartConfig.expense.color}
-                  name="expense"
-                  stroke={chartConfig.expense.color}
-                  strokeWidth={0}
-                />
-                <Bar
-                  dataKey="employee_loan"
-                  fill={chartConfig.employee_loan.color}
-                  name="employee_loan"
-                  stroke={chartConfig.employee_loan.color}
-                  strokeWidth={0}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
+          <DashboardChart data={chartData} />
         </CardContent>
-        <CardFooter className="flex-col items-start gap-3 text-sm border-t pt-4">
-          <div className="flex items-center gap-2 font-medium">
-            <span>
-              Net Total: Rp {Math.abs(netTotal).toLocaleString("id-ID")}
-            </span>
-            {isPositiveTrend ? (
-              <>
-                <span className="text-green-600 bg-green-50 px-2 py-1 rounded-full text-xs font-semibold">
-                  Surplus
-                </span>
-                <TrendingUp className="h-4 w-4 text-green-600" />
-              </>
-            ) : (
-              <>
-                <span className="text-red-600 bg-red-50 px-2 py-1 rounded-full text-xs font-semibold">
-                  Defisit
-                </span>
-                <TrendingDown className="h-4 w-4 text-red-600" />
-              </>
-            )}
-          </div>
-          <div className="grid grid-cols-3 gap-4 w-full text-xs">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-green-500"></div>
-              <span className="">Pemasukan:</span>
-              <span className="font-medium">
-                Rp {totalIncome.toLocaleString("id-ID")}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500"></div>
-              <span className="">Pengeluaran:</span>
-              <span className="font-medium">
-                Rp {totalExpense.toLocaleString("id-ID")}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-              <span className="">Ambilan:</span>
-              <span className="font-medium">
-                Rp {totalEmployeeLoan.toLocaleString("id-ID")}
-              </span>
-            </div>
-          </div>
-        </CardFooter>
       </Card>
     </div>
   );
